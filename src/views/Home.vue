@@ -19,31 +19,29 @@
 </template>
 
 <script>
+import { projectFirestore } from '../firebase/config';
+
 export default {
   name: 'Home',
   data() {
     return {
-      smoothies: [
-        {
-          title: 'Dev Brew',
-          slug: 'dev-brew',
-          ingredients: ['banana', 'coffee', 'milk'],
-          id: '1',
-        },
-        {
-          title: 'White Banana',
-          slug: 'white-banana',
-          ingredients: ['banana', 'vanilla', 'milk'],
-          id: '2',
-        },
-        {
-          title: 'Choko Crisp',
-          slug: 'choko-crisp',
-          ingredients: ['chokolate', 'coffee', 'milk'],
-          id: '3',
-        },
-      ],
+      smoothies: [],
     };
+  },
+  created() {
+    // fetch data from our firestore
+    projectFirestore
+      .collection('smoothies')
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          let smoothie = doc.data();
+          smoothie.id = doc.id;
+          this.smoothies.push(smoothie);
+          console.log(smoothie);
+        });
+      })
+      .catch((err) => console.log(err.message));
   },
   methods: {
     deleteSmoothie(id) {
