@@ -38,16 +38,24 @@ export default {
           let smoothie = doc.data();
           smoothie.id = doc.id;
           this.smoothies.push(smoothie);
-          console.log(smoothie);
         });
       })
       .catch((err) => console.log(err.message));
   },
   methods: {
     deleteSmoothie(id) {
-      this.smoothies = this.smoothies.filter((smoothie) => {
-        return smoothie.id !== id;
-      });
+      // delete doc from our firestore
+      projectFirestore
+        .collection('smoothies')
+        .doc(id)
+        .delete()
+        .then(() => {
+          this.smoothies = this.smoothies
+            .filter((smoothie) => {
+              return smoothie.id !== id;
+            })
+            .catch((err) => console.log(err.message));
+        });
     },
   },
 };
