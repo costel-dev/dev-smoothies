@@ -19,7 +19,10 @@
       <div class="field">
         <ul class="ingredients">
           <li v-for="(ing, index) in ingredients" :key="index">
-            <span class="chip"> {{ ing }} </span>
+            <span class="chip">
+              {{ ing }}
+              <span class="delete-ing" @click="deleteIngredient(index)">x</span>
+            </span>
           </li>
         </ul>
       </div>
@@ -31,6 +34,9 @@
 </template>
 
 <script>
+import { projectFirestore } from '../firebase/config';
+import { createSlug } from '../utils/createSlug';
+
 export default {
   name: 'AddSmoothie',
   data() {
@@ -39,11 +45,28 @@ export default {
       nextIngredient: null,
       ingredients: [],
       feedback: null,
+      slug: null,
     };
   },
   methods: {
     addSmoothie() {
-      console.log(this.title);
+      if (this.title) {
+        this.feedback = null;
+        // create a slug
+        this.slug = createSlug(this.title);
+        // adding to our firestore
+        projectFirestore
+          .collection('smoothies')
+          .add({
+            title: this.title,
+            ingredients: this.ingredients,
+            slug: this.slug,
+          })
+          .then(() => this.$router.push({ name: 'Home' }))
+          .catch((err) => console.log(err.message));
+      } else {
+        this.feedback = 'You must enter a Smoothie title';
+      }
     },
     addIngredient() {
       if (this.nextIngredient) {
@@ -53,6 +76,9 @@ export default {
       } else {
         this.feedback = 'You must enter an ingredient';
       }
+    },
+    deleteIngredient(index) {
+      return this.ingredients.splice(index, 1);
     },
   },
 };
@@ -77,5 +103,9 @@ export default {
 .add-smoothie .field .feedback {
   color: red;
   font-size: 0.8em;
+}
+.add-smoothie .field .delete-ing {
+  cursor: pointer;
+  margin: 0 5px;
 }
 </style>

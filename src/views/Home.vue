@@ -51,9 +51,7 @@ export default {
         .delete()
         .then(() => {
           this.smoothies = this.smoothies
-            .filter((smoothie) => {
-              return smoothie.id !== id;
-            })
+            .filter((smoothie) => smoothie.id !== id)
             .catch((err) => console.log(err.message));
         });
     },
