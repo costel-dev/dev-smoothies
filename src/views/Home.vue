@@ -30,6 +30,7 @@
 
 <script>
 import { projectFirestore } from '../firebase/config';
+import { fetchSmoothies } from '../utils/fetchSmoothies';
 
 export default {
   name: 'Home',
@@ -39,31 +40,21 @@ export default {
     };
   },
   created() {
-    // fetch data from our firestore
-    projectFirestore
-      .collection('smoothies')
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          let smoothie = doc.data();
-          smoothie.id = doc.id;
-          this.smoothies.push(smoothie);
-        });
-      })
-      .catch((err) => console.log(err.message));
+    // fetch our data from firebase
+    this.smoothies = fetchSmoothies();
   },
   methods: {
     deleteSmoothie(id) {
-      // delete doc from our firestore
       projectFirestore
         .collection('smoothies')
         .doc(id)
         .delete()
         .then(() => {
-          this.smoothies = this.smoothies
-            .filter((smoothie) => smoothie.id !== id)
-            .catch((err) => console.log(err.message));
-        });
+          this.smoothies = this.smoothies.filter(
+            (smoothie) => smoothie.id !== id
+          );
+        })
+        .catch((err) => console.log(err.message));
     },
   },
 };
